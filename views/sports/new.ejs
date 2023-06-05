@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sports Scheduler | Create New Sport</title>
+    <script>
+      function createSport() {
+        const sportName = document.getElementById("sportName").value;
+        fetch(`/sports`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name: sportName }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+            window.location.href = `/sports`;
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
+    </script>
+  </head>
+  <body>
+    <h1>Create New Sport</h1>
+
+    <div>
+      <label for="sportName">What is the sport's name?</label>
+      <br>
+      <input type="text" id="sportName" name="name" required>
+      <br><br>
+      <button onclick="createSport()">Submit</button>
+    </div>
+  </body>
+</html>

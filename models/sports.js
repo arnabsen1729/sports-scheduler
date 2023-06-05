@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
 
-    static async getAllSports() {
+    static async getSports() {
       const sports = await Sports.findAll();
       return sports;
     }
@@ -19,6 +19,15 @@ module.exports = (sequelize, DataTypes) => {
     static async addSport(sportName) {
       const newSport = await Sports.create({ name: sportName });
       return newSport;
+    }
+
+    updateSportName(sportName) {
+      return this.update({ name: sportName });
+    }
+
+    static async deleteSport(sportId) {
+      const sport = await Sports.findByPk(sportId);
+      await sport.destroy();
     }
   }
   Sports.init(

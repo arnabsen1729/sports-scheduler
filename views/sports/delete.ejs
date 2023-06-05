@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sports Scheduler | Delete Sport</title>
+    <script>
+      function deleteSport() {
+        const sportId = window.location.pathname.split("/")[2];
+        fetch(`/sports/${sportId}`, {
+          method: "DELETE",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+            window.location.href = `/sports`;
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
+    </script>
+  </head>
+  <body>
+    <h1>Are you sure, you want to delete <%= name %></h1>
+
+    <button value="Yes, I confirm" onclick="deleteSport()">Submit</button>
+    <a href="/sports/<%= id %>">Cancel</a>
+  </body>
+</html>
