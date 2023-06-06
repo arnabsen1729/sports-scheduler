@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Sports.hasMany(models.Sessions, {
+        foreignKey: "sportId",
+        as: "sessions",
+      });
     }
 
     static async getSports() {

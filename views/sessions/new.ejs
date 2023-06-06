@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+    <title>Sports Scheduler | Create new <%= sportName %> session</title>
+    <script>
+      const csrfToken = document.querySelector("[name=csrf-token]").content;
+
+      function createSession() {
+        const date = document.querySelector("#date").value;
+        const time = document.querySelector("#time").value;
+        const venue = document.querySelector("#venue").value;
+        const playerCount = document.querySelector("#playerCount").value;
+        const players = document.querySelector("#players").value.split(",");
+        const sportId = "<%= sportId %>";
+
+        // fetch;
+      }
+    </script>
+  </head>
+  <body>
+    <h1>New <%= sportName %> session</h1>
+    <div>
+      <label>When will this session be played?</label>
+      <input type="date" id="date" required />
+      <input type="time" id="time" required />
+      <br />
+      <label>Where will this session be played?</label>
+      <input type="text" id="venue" required />
+      <br />
+      <label>How many players are needed?</label>
+      <input type="number" id="playerCount" required />
+      <br />
+      <label>Who all will be joining you in this session?</label>
+      <input type="text" id="players" placeholder="Players" required />
+      <br />
+      <button id="create-session" onclick="">Create Session</button>
+    </div>
+  </body>
+</html>

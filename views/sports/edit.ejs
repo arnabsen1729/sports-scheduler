@@ -3,9 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sports Scheduler | Edit Sport</title>
     <script>
+      const csrfToken = document.querySelector(
+        'meta[name="csrf-token"]'
+      ).content;
       function updateSport() {
         const sportName = document.getElementById("sportName").value;
         const sportId = window.location.pathname.split("/")[2];
@@ -17,6 +21,7 @@
           },
           body: JSON.stringify({
             name: sportName,
+            _csrf: csrfToken,
           }),
         })
           .then((response) => response.json())
@@ -35,9 +40,15 @@
 
     <div>
       <label for="sportName">What is the new sport's name?</label>
-      <br>
-      <input type="text" id="sportName" name="name" required value="<%= name %>">
-      <br><br>
+      <br />
+      <input
+        type="text"
+        id="sportName"
+        name="name"
+        required
+        value="<%= name %>"
+      />
+      <br /><br />
       <button value="Submit" onclick="updateSport()">Submit</button>
     </div>
   </body>

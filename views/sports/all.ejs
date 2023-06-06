@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sports Scheduler</title>
-</head>
-<body>
-  <h1>Sports</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sports Scheduler</title>
+  </head>
+  <body>
+    <h1>Sports</h1>
 
-  <ul>
-    <% for (let i = 0; i < sports.length; i++) { %>
+    <ul>
+      <% for (let i = 0; i < sports.length; i++) { %>
       <li>
         <a href="/sports/<%= sports[i].id %>"><%= sports[i].name %></a>
       </li>
-    <% } %>
-  </ul>
-</body>
+      <% } %>
+    </ul>
+  </body>
 </html>
