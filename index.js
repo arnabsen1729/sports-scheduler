@@ -7,15 +7,22 @@ const ejs = require("ejs");
 const cookieParser = require("cookie-parser");
 const csrf = require("tiny-csrf");
 
+const bcrypt = require("bcrypt");
+const flash = require("connect-flash");
+const path = require("path");
+
 const passport = require("passport");
 const connectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
 const LocalStrategy = require("passport-local");
 
+const saltRounds = 10;
+
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("somesecretkey"));
 app.use(csrf("NAA41FhDUQ6TgdADAO9fzPjKCqP9UwrY", ["POST", "PUT", "DELETE"]));
+app.set("views", path.join(__dirname, "views"));
 
 app.set("view engine", "ejs");
 
@@ -30,6 +37,12 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
+
+app.use(function (request, response, next) {
+  response.locals.messages = request.flash();
+  next();
+});
 
 passport.use(
   new LocalStrategy(
@@ -37,20 +50,21 @@ passport.use(
       usernameField: "email",
       passwordField: "password",
     },
-    async (username, password, done) => {
-      try {
-        const player = await Players.findOne({ where: { email: username } });
-        console.log("Player found", player);
-        if (!player) {
-          return done(null, false, { message: "Incorrect username." });
-        }
-        if (player.password !== password) {
-          return done(null, false, { message: "Incorrect password." });
-        }
-        return done(null, player);
-      } catch (error) {
-        return done(error);
-      }
+    (username, password, done) => {
+      console.log("Local strategy callback, username: ", username);
+      Players.findOne({ where: { email: username } })
+        .then(async (user) => {
+          console.log(user);
+          const result = await bcrypt.compare(password, user.password);
+          if (!result) {
+            return done(null, false, { message: "Invalid password" });
+          }
+          return done(null, user);
+        })
+        .catch((err) => {
+          console.log(err);
+          return done(null, false, { message: "Invalid email" });
+        });
     }
   )
 );
@@ -209,10 +223,11 @@ app.get("/signup", (req, res) => {
 
 app.post("/players", async (req, res) => {
   try {
+    const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
     const newPlayer = await Players.addPlayer(
       req.body.name,
       req.body.email,
-      req.body.password,
+      hashedPassword,
       "user"
     );
 
@@ -250,10 +265,11 @@ app.post(
   "/login",
   passport.authenticate("local", {
     failureRedirect: "/login",
+    failureFlash: true,
   }),
   (req, res) => {
     console.log("user: ", req.user);
-    res.redirect("/");
+    res.redirect("/sports");
   }
 );
 
