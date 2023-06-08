@@ -44,6 +44,19 @@ app.use(function (request, response, next) {
   next();
 });
 
+passport.serializeUser((player, done) => {
+  done(null, player.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const player = await Players.findByPk(id);
+    done(null, player);
+  } catch (error) {
+    done(error);
+  }
+});
+
 passport.use(
   new LocalStrategy(
     {
@@ -54,7 +67,6 @@ passport.use(
       console.log("Local strategy callback, username: ", username);
       Players.findOne({ where: { email: username } })
         .then(async (user) => {
-          console.log(user);
           const result = await bcrypt.compare(password, user.password);
           if (!result) {
             return done(null, false, { message: "Invalid password" });
@@ -69,30 +81,19 @@ passport.use(
   )
 );
 
-passport.serializeUser((player, done) => {
-  console.log("Serializing user in session", player.id);
-  done(null, player.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const player = await Players.findByPk(id);
-    console.log("Deserializing user from session", player.id);
-    done(null, player);
-  } catch (error) {
-    done(error);
+function requireAdmin(req, res, next) {
+  if (req.user && req.user.role === "admin") {
+    return next();
+  } else {
+    res.status(401).json({ error: "Unauthorized" });
   }
-});
+}
 
 app.get("/", (req, res) => {
   res.render("index");
 });
 
 // ---- SPORTS ----
-
-app.get("/sports/new", connectEnsureLogin.ensureLoggedIn(), (req, res) => {
-  res.render("sports/new", { csrfToken: req.csrfToken() });
-});
 
 app.get("/sports", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   try {
@@ -105,6 +106,10 @@ app.get("/sports", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+app.get("/sports/new", requireAdmin, (req, res) => {
+  res.render("sports/new", { csrfToken: req.csrfToken() });
 });
 
 app.get(
@@ -129,51 +134,43 @@ app.get(
   }
 );
 
-app.get(
-  "/sports/:id/edit",
-  connectEnsureLogin.ensureLoggedIn(),
-  async (req, res) => {
-    try {
-      const sport = await Sports.findByPk(req.params.id);
-      ejs.renderFile(
-        "./views/sports/edit.ejs",
-        { id: sport.id, name: sport.name, csrfToken: req.csrfToken() },
-        (err, html) => {
-          if (err) {
-            console.log(err);
-          }
-          res.send(html);
+app.get("/sports/:id/edit", requireAdmin, async (req, res) => {
+  try {
+    const sport = await Sports.findByPk(req.params.id);
+    ejs.renderFile(
+      "./views/sports/edit.ejs",
+      { id: sport.id, name: sport.name, csrfToken: req.csrfToken() },
+      (err, html) => {
+        if (err) {
+          console.log(err);
         }
-      );
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+        res.send(html);
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-);
+});
 
-app.get(
-  "/sports/:id/delete",
-  connectEnsureLogin.ensureLoggedIn(),
-  async (req, res) => {
-    try {
-      const sport = await Sports.findByPk(req.params.id);
-      ejs.renderFile(
-        "./views/sports/delete.ejs",
-        { id: sport.id, name: sport.name, csrfToken: req.csrfToken() },
-        (err, html) => {
-          if (err) {
-            console.log(err);
-          }
-          res.send(html);
+app.get("/sports/:id/delete", requireAdmin, async (req, res) => {
+  try {
+    const sport = await Sports.findByPk(req.params.id);
+    ejs.renderFile(
+      "./views/sports/delete.ejs",
+      { id: sport.id, name: sport.name, csrfToken: req.csrfToken() },
+      (err, html) => {
+        if (err) {
+          console.log(err);
         }
-      );
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+        res.send(html);
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-);
+});
 
-app.post("/sports", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
+app.post("/sports", requireAdmin, async (req, res) => {
   try {
     const newSport = await Sports.addSport(req.body.name);
     console.log(newSport);
@@ -187,33 +184,25 @@ app.post("/sports", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   }
 });
 
-app.put(
-  "/sports/:id",
-  connectEnsureLogin.ensureLoggedIn(),
-  async (req, res) => {
-    try {
-      const sport = await Sports.findByPk(req.params.id);
-      console.log(sport);
-      await sport.updateSportName(req.body.name);
-      res.json(sport);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+app.put("/sports/:id", requireAdmin, async (req, res) => {
+  try {
+    const sport = await Sports.findByPk(req.params.id);
+    console.log(sport);
+    await sport.updateSportName(req.body.name);
+    res.json(sport);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-);
+});
 
-app.delete(
-  "/sports/:id",
-  connectEnsureLogin.ensureLoggedIn(),
-  async (req, res) => {
-    try {
-      await Sports.deleteSport(req.params.id);
-      res.json({ deleted: true });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+app.delete("/sports/:id", requireAdmin, async (req, res) => {
+  try {
+    await Sports.deleteSport(req.params.id);
+    res.json({ deleted: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-);
+});
 
 // ---- PLAYERS/USERS ----
 
@@ -233,16 +222,12 @@ app.post("/players", async (req, res) => {
 
     console.log(newPlayer);
 
-    if (req.headers.accept.includes("text/html")) {
-      req.login(newPlayer, (err) => {
-        if (err) {
-          return res.status(422).json({ error: err });
-        }
-        res.redirect("/");
-      });
-    } else {
-      res.json(newPlayer);
-    }
+    req.login(newPlayer, (err) => {
+      if (err) {
+        return res.status(422).json({ error: err });
+      }
+      res.redirect("/sports");
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
