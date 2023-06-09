@@ -91,16 +91,20 @@ function requireAdmin(req, res, next) {
 }
 
 app.get("/", (req, res) => {
-  res.render("index");
+  if (req.user) {
+    res.redirect("/home");
+  } else {
+    res.render("index");
+  }
 });
 
 // ---- SPORTS ----
 
-app.get("/sports", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
+app.get("/home", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   try {
     const sports = await Sports.getSports();
     if (req.headers.accept.includes("text/html")) {
-      res.render("sports/all", { sports: sports });
+      res.render("home.ejs", { sports: sports, username: req.user.name });
     } else {
       res.json(sports);
     }
@@ -208,6 +212,10 @@ app.delete("/sports/:id", requireAdmin, async (req, res) => {
 // ---- PLAYERS/USERS ----
 
 app.get("/signup", (req, res) => {
+  if (req.user) {
+    return res.redirect("/home");
+  }
+
   res.render("signup", { csrfToken: req.csrfToken() });
 });
 
@@ -235,6 +243,10 @@ app.post("/players", async (req, res) => {
 });
 
 app.get("/login", (req, res) => {
+  // check if user is already logged in
+  if (req.user) {
+    return res.redirect("/home");
+  }
   res.render("login", { csrfToken: req.csrfToken() });
 });
 
@@ -254,7 +266,7 @@ app.post(
     failureFlash: true,
   }),
   (req, res) => {
-    res.redirect("/sports");
+    res.redirect("/home");
   }
 );
 
