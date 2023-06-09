@@ -110,6 +110,8 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       await sequelize.models.SessionPlayers.bulkCreate(sessionPlayers);
+
+      return this;
     }
 
     async addPlayer(playerId) {}

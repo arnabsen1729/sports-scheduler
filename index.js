@@ -321,6 +321,26 @@ app.get(
   async (req, res) => {
     try {
       const session = await Sessions.getSessionById(req.params.id);
+
+      if (session.createdBy !== req.user.id) {
+        return res.redirect("/home");
+      }
+
+      const selectedPlayers = session.players;
+      const players = await Players.findAll();
+      const unselectedPlayers = players.filter(
+        (player) =>
+          !selectedPlayers.some(
+            (selectedPlayer) => selectedPlayer.id === player.id
+          )
+      );
+
+      console.log("===== SElECTED =====");
+      console.log(selectedPlayers.map((player) => player.toJSON()));
+
+      console.log("===== UNSElECTED =====");
+      console.log(unselectedPlayers.map((player) => player.toJSON()));
+
       res.render("sessions/edit", {
         sportName: session.sport.name,
         sportId: session.sport.id,
@@ -328,9 +348,11 @@ app.get(
         sessionDate: session.date,
         sessionTime: session.time,
         sessionVenue: session.venue,
-        players: session.players,
+        selectedPlayers,
+        unselectedPlayers,
         playerCount: session.playerCount,
         createdBy: session.createdBy,
+        username: req.user.name,
         csrfToken: req.csrfToken(),
       });
     } catch (error) {
@@ -393,13 +415,7 @@ app.put(
         req.body.playerIds
       );
 
-      console.log(updatedSession);
-
-      if (req.headers.accept.includes("text/html")) {
-        res.redirect(`/sessions/${req.params.id}`);
-      } else {
-        res.json(updatedSession);
-      }
+      res.json(updatedSession);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
