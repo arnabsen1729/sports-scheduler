@@ -31,7 +31,7 @@ app.use(
   session({
     secret: "my-secret-key-NAA41FhDUQ6TgdADAO9fzPjKCqP9UwrY",
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 10000,
     },
   })
 );
@@ -123,9 +123,11 @@ app.get(
   async (req, res) => {
     try {
       const sport = await Sports.findByPk(req.params.id);
+      const sessions = await sport.getSessions();
+      const isAdmin = req.user.role === "admin";
       ejs.renderFile(
         "./views/sports/index.ejs",
-        { id: sport.id, name: sport.name },
+        { id: sport.id, name: sport.name, sessions, isAdmin },
         (err, html) => {
           if (err) {
             console.log(err);

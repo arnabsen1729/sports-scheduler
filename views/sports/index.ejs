@@ -1,21 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sports Scheduler | <%= name %></title>
-  </head>
-  <body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= name %> | Sportzzz</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+  <style>
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="container py-4">
     <h1><%= name %></h1>
 
-    <a href="/sports/<%= id %>/edit">Edit</a>
-    <a href="/sports/<%= id %>/delete">Delete</a>
+    <% if (isAdmin) { %>
+    <div class="my-3">
+      <a href="/sports/<%= id %>/edit" class="btn btn-primary me-2">Edit</a>
+      <a href="/sports/<%= id %>/delete" class="btn btn-danger">Delete</a>
+    </div>
+    <% } %>
 
-    <br /><br />
+    <div class="my-4">
+      <a href="/sports/<%= id %>/sessions/new" class="btn btn-primary me-2">Create a new session</a>
+      <a href="" class="btn btn-secondary">View previous sessions</a>
+    </div>
 
-    <a href="/sports/<%= id %>/sessions/new">Create a new session</a>
-    <br />
-    <a href="">View previous sessions</a>
-  </body>
+    <h2>Upcomming Sessions</h2>
+
+    <% if (sessions.length > 0) { %>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <%- include("../partials/session-cards.ejs", {sessions: sessions}) %>
+    </div>
+    <% } else { %>
+    <div class="alert alert-info d-flex align-items-center" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      <div>No sessions found.</div>
+    </div>
+    <% } %>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</body>
+
 </html>
