@@ -103,11 +103,12 @@ app.get("/", (req, res) => {
 app.get("/home", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   try {
     const sports = await Sports.getSports();
-    if (req.headers.accept.includes("text/html")) {
-      res.render("home.ejs", { sports: sports, username: req.user.name });
-    } else {
-      res.json(sports);
-    }
+    const upcommingSessions = await req.user.getUpcomingSessions();
+    res.render("home.ejs", {
+      sports: sports,
+      username: req.user.name,
+      upcommingSessions: upcommingSessions,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -123,11 +124,23 @@ app.get(
   async (req, res) => {
     try {
       const sport = await Sports.findByPk(req.params.id);
-      const sessions = await sport.getSessions();
+      const upcommingSessions = await req.user.getUpcomingSessionsBySport(
+        sport.id
+      );
+      const pastSessions = await req.user.getPastSessionsBySport(sport.id);
+
       const isAdmin = req.user.role === "admin";
+
       ejs.renderFile(
         "./views/sports/index.ejs",
-        { id: sport.id, name: sport.name, sessions, isAdmin },
+        {
+          id: sport.id,
+          name: sport.name,
+          upcommingSessions,
+          pastSessions,
+          isAdmin,
+          username: req.user.name,
+        },
         (err, html) => {
           if (err) {
             console.log(err);

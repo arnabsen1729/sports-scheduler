@@ -1,5 +1,5 @@
 "use strict";
-const { Model } = require("sequelize");
+const { Model, Op } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Players extends Model {
     /**
@@ -39,6 +39,58 @@ module.exports = (sequelize, DataTypes) => {
         role: playerRole,
       });
       return newPlayer;
+    }
+
+    async getUpcomingSessions() {
+      const sessions = await this.getSessions({
+        where: {
+          date: {
+            [Op.gte]: new Date(),
+          },
+        },
+      });
+      return sessions;
+    }
+
+    async getUpcomingSessionsBySport(sportId) {
+      const sessions = await this.getSessions({
+        where: {
+          date: {
+            [Op.gte]: new Date(),
+          },
+        },
+        include: [
+          {
+            model: sequelize.models.Sports,
+            as: "sport",
+            where: {
+              id: sportId,
+            },
+          },
+        ],
+      });
+      return sessions;
+    }
+
+    async getPastSessionsBySport(sportId) {
+      const sessions = await this.getSessions({
+        where: {
+          date: {
+            [Op.lt]: new Date(),
+          },
+        },
+        include: [
+          {
+            model: sequelize.models.Sports,
+            as: "sport",
+            where: {
+              id: sportId,
+            },
+          },
+        ],
+      });
+
+      return sessions;
     }
   }
   Players.init(

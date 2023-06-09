@@ -19,6 +19,7 @@
 </head>
 
 <body>
+  <%- include("../partials/navbar.ejs", {username: username}) %>
   <div class="container py-4">
     <h1><%= name %></h1>
 
@@ -36,14 +37,27 @@
 
     <h2>Upcomming Sessions</h2>
 
-    <% if (sessions.length > 0) { %>
+    <% if (upcommingSessions.length > 0) { %>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-      <%- include("../partials/session-cards.ejs", {sessions: sessions}) %>
+      <%- include("../partials/session-cards.ejs", {sessions: upcommingSessions}) %>
     </div>
     <% } else { %>
     <div class="alert alert-info d-flex align-items-center" role="alert">
       <i class="bi bi-exclamation-triangle-fill me-2"></i>
-      <div>No sessions found.</div>
+      <div>No upcomming sessions found.</div>
+    </div>
+    <% } %>
+
+    <h2 class="mt-5">Previous Sessions</h2>
+
+    <% if (pastSessions.length > 0) { %>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <%- include("../partials/session-cards.ejs", {sessions: pastSessions}) %>
+    </div>
+    <% } else { %>
+    <div class="alert alert-info d-flex align-items-center" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      <div>No previous sessions found.</div>
     </div>
     <% } %>
 

@@ -40,8 +40,9 @@ const db = require("../models/index.js");
     // const players = await session.getPlayers();
     // console.log(players);
 
-    const sessions = await db.Sessions.getSession(3);
-    console.log(sessions.toJSON());
+    const player = await db.Players.findByPk(8);
+    const sessions = await player.getUpcomingSessions();
+    console.log(sessions.map((session) => session.toJSON()));
 
     // console.log(session);
 
