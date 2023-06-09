@@ -229,13 +229,11 @@ app.post("/players", async (req, res) => {
       "user"
     );
 
-    console.log(newPlayer);
-
     req.login(newPlayer, (err) => {
       if (err) {
         return res.status(422).json({ error: err });
       }
-      res.redirect("/sports");
+      res.redirect("/home");
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

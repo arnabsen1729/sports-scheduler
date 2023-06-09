@@ -7,22 +7,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sportzzz</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+  <style>
+    .sports-list {
+      max-width: 400px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+  </style>
 </head>
 
 <body>
   <%- include("./partials/navbar.ejs", {username: username}) %>
 
-  <h1>Sports</h1>
+  <section class="container py-5">
+    <div class="text-center">
+      <img src="/assets/logo.png" alt="Sportzzz Logo" width="200" height="200" class="d-inline-block align-top" />
+      <h1>Welcome to Sportzzz, <%= username %></h1>
+      <p class="lead">The following sports are available, please select one:</p>
+    </div>
 
-  <ul>
-    <% for (let i=0; i < sports.length; i++) { %>
-    <li>
-      <a href="/sports/<%= sports[i].id %>">
-        <%= sports[i].name %>
-      </a>
-    </li>
-    <% } %>
-  </ul>
+    <ul class="list-unstyled sports-list">
+      <% for (let i = 0; i < sports.length; i++) { %>
+      <li>
+        <a href="/sports/<%= sports[i].id %>" class="btn btn-outline-primary">
+          <%= sports[i].name %>
+        </a>
+      </li>
+      <% } %>
+    </ul>
+
+  </section>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 </body>
 

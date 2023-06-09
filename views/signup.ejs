@@ -44,12 +44,9 @@
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ name, email, password, _csrf: csrfToken }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            window.location.href = "/sports";
-          })
-          .catch((error) => {
+        }).then(() => {
+          window.location.href = "/home";
+        }).catch((error) => {
             console.error("Error:", error);
           });
       }
