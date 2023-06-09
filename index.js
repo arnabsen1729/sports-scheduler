@@ -243,7 +243,6 @@ app.post("/players", async (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  // check if user is already logged in
   if (req.user) {
     return res.redirect("/home");
   }
@@ -278,10 +277,13 @@ app.get(
   async (req, res) => {
     try {
       const sport = await Sports.findByPk(req.params.id);
+      const players = await Players.findAll();
       res.render("sessions/new", {
         sportId: sport.id,
         sportName: sport.name,
         userId: req.user.id,
+        username: req.user.name,
+        players,
         csrfToken: req.csrfToken(),
       });
     } catch (error) {
@@ -366,13 +368,7 @@ app.post("/sessions", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
       req.body.playerIds
     );
 
-    console.log(newSession);
-
-    if (req.headers.accept.includes("text/html")) {
-      res.redirect("/");
-    } else {
-      res.json(newSession);
-    }
+    res.json(newSession);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
