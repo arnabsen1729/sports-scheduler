@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sports Scheduler | Session</title>
+  </head>
+  <body>
+    <h1><%= sportName %> Session <%= sessionId %></h1>
+    <p>
+      The session is scheduled for <%= sessionDate %>, <%= sessionTime %>, to be
+      played at <%= sessionVenue %>.
+    </p>
+
+    <h2>Players</h2>
+    <ul>
+      <% for (let i = 0; i < players.length; i++) { %>
+      <li><%= players[i].name %></li>
+      <% } %>
+    </ul>
+
+    <a href="/sessions">Back to Sessions</a>
+    <a href="/sessions/<%= sessionId %>/edit">Edit Session</a>
+    <a href="/sessions/<%= sessionId %>?_method=DELETE">Delete Session</a>
+  </body>
+</html>

@@ -253,7 +253,6 @@ app.post(
     failureFlash: true,
   }),
   (req, res) => {
-    console.log("user: ", req.user);
     res.redirect("/sports");
   }
 );
@@ -269,6 +268,7 @@ app.get(
       res.render("sessions/new", {
         sportId: sport.id,
         sportName: sport.name,
+        userId: req.user.id,
         csrfToken: req.csrfToken(),
       });
     } catch (error) {
@@ -276,6 +276,26 @@ app.get(
     }
   }
 );
+
+app.get("/sessions/:id", async (req, res) => {
+  try {
+    const session = await Sessions.getSessionById(req.params.id);
+
+    res.render("sessions/index", {
+      sportName: session.sport.name,
+      sessionId: session.id,
+      sessionDate: session.date,
+      sessionTime: session.time,
+      sessionVenue: session.venue,
+      players: session.players,
+      playerCount: session.playerCount,
+      createdBy: session.createdBy,
+      // csrfToken: req.csrfToken(),
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 app.post("/sessions", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   try {
@@ -286,8 +306,10 @@ app.post("/sessions", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
       req.body.playerCount,
       req.body.createdBy, // TODO: get the id from userSession
       req.body.sportId,
-      req.body.players
+      req.body.playerIds
     );
+
+    console.log(newSession);
 
     if (req.headers.accept.includes("text/html")) {
       res.redirect("/");
@@ -298,6 +320,26 @@ app.post("/sessions", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.delete(
+  "/sessions/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    console.log("Trying to delete session");
+    try {
+      // check if the user is the creator of the session
+      const session = await Sessions.findByPk(req.params.id);
+      if (session.createdBy !== req.user.id) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      await Sessions.deleteSession(req.params.id);
+      res.json({ deleted: true });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
 
 app.listen(3000, () => {
   console.log("Server is listening on port 3000");

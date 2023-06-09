@@ -21,20 +21,31 @@ const db = require("../models/index.js");
     // console.log(" ====  NEW PLAYER ===");
     // console.log(newPlayer);
     // get date in yyyy-mm-dd format
-    const date = new Date().toISOString().slice(0, 10);
-    // get time
-    const time = new Date().toLocaleTimeString("en-US");
-    const session = await db.Sessions.addSession(
-      date,
-      time,
-      "local",
-      10,
-      1,
-      6,
-      [1, 2]
-    );
-    console.log(" ====  NEW SESSION ===");
-    console.log(session);
+    // const date = new Date().toISOString().slice(0, 10);
+    // // get time
+    // const time = new Date().toLocaleTimeString("en-US");
+    // const session = await db.Sessions.addSession(
+    //   date,
+    //   time,
+    //   "local",
+    //   10,
+    //   1,
+    //   6,
+    //   [1, 2]
+    // );
+    // console.log(" ====  NEW SESSION ===");
+    // console.log(session);
+
+    // const session = await db.Sessions.findByPk(3);
+    // const players = await session.getPlayers();
+    // console.log(players);
+
+    const sessions = await db.Sessions.getSession(3);
+    console.log(sessions.toJSON());
+
+    // console.log(session);
+
+    // get all players in a S
   } catch (error) {
     console.log(error);
   }

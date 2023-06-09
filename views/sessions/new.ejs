@@ -7,17 +7,48 @@
     <meta name="csrf-token" content="<%= csrfToken %>" />
     <title>Sports Scheduler | Create new <%= sportName %> session</title>
     <script>
-      const csrfToken = document.querySelector("[name=csrf-token]").content;
+      const csrfToken = document.querySelector(
+        'meta[name="csrf-token"]'
+      ).content;
 
       function createSession() {
-        const date = document.querySelector("#date").value;
-        const time = document.querySelector("#time").value;
-        const venue = document.querySelector("#venue").value;
-        const playerCount = document.querySelector("#playerCount").value;
-        const players = document.querySelector("#players").value.split(",");
+        const date = document.querySelector('input[name="date"]').value;
+        const time = document.querySelector('input[name="time"]').value;
+        const venue = document.querySelector('input[name="venue"]').value;
+        const playerCount = document.querySelector(
+          'input[name="playerCount"]'
+        ).value;
+        const players = document.querySelector('input[name="players"]').value;
+        const playerIds = players
+          .split(",")
+          .map((player) => parseInt(player.trim()));
         const sportId = "<%= sportId %>";
-
-        // fetch;
+        const createdBy = "<%= userId %>";
+        fetch("/sessions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            date,
+            time,
+            venue,
+            playerCount,
+            playerIds,
+            sportId,
+            createdBy,
+            _csrf: csrfToken,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.error) {
+              alert(data.error);
+            } else {
+              window.location.href = "/sessions";
+            }
+          })
+          .catch((err) => console.log(err));
       }
     </script>
   </head>
@@ -25,19 +56,19 @@
     <h1>New <%= sportName %> session</h1>
     <div>
       <label>When will this session be played?</label>
-      <input type="date" id="date" required />
-      <input type="time" id="time" required />
+      <input type="date" name="date" required />
+      <input type="time" name="time" required />
       <br />
       <label>Where will this session be played?</label>
-      <input type="text" id="venue" required />
+      <input type="text" name="venue" required />
       <br />
       <label>How many players are needed?</label>
-      <input type="number" id="playerCount" required />
+      <input type="number" name="playerCount" required />
       <br />
       <label>Who all will be joining you in this session?</label>
-      <input type="text" id="players" placeholder="Players" required />
+      <input type="text" name="players" placeholder="Players" required />
       <br />
-      <button id="create-session" onclick="">Create Session</button>
+      <button onclick="createSession()">Create Session</button>
     </div>
   </body>
 </html>

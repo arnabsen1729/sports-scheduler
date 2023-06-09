@@ -1,5 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class Sessions extends Model {
     /**
@@ -24,6 +25,27 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "SessionId",
         as: "players",
       });
+    }
+
+    static async getSessionById(id) {
+      const session = await Sessions.findByPk(id, {
+        include: [
+          {
+            model: sequelize.models.Players,
+            as: "players",
+          },
+          {
+            model: sequelize.models.Players,
+            as: "creator",
+          },
+          {
+            model: sequelize.models.Sports,
+            as: "sport",
+          },
+        ],
+      });
+
+      return session;
     }
 
     static async getSessions() {
@@ -60,6 +82,15 @@ module.exports = (sequelize, DataTypes) => {
 
       return newSession;
     }
+
+    static async deleteSession(id) {
+      const session = await Sessions.findByPk(id);
+      await session.destroy();
+    }
+
+    async addPlayer(playerId) {}
+
+    async removePlayer(playerId) {}
   }
   Sessions.init(
     {

@@ -4,34 +4,14 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="csrf-token" content="<%= csrfToken %>" />
     <title>Sports Scheduler | Sign In</title>
-    <script>
-      const csrfToken = document.querySelector("[name=csrf-token]").content;
-
-      function handleLogin() {
-        const email = document.querySelector("#email").value;
-        const password = document.querySelector("#password").value;
-
-        fetch("/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password, _csrf: csrfToken }),
-        })
-          .catch((error) => {
-            console.error("Error:", error);
-          });
-      }
-    </script>
   </head>
   <body>
     <h1>Log In</h1>
     <form action="/login" method="POST">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-      <input type="text" name="email" id="email" placeholder="Email" required/>
-      <input type="password" name="password" id="password" placeholder="Password" required/>
+      <input type="text" name="email" id="email" placeholder="Email" value="user1@email.com" required/>
+      <input type="password" name="password" id="password" placeholder="Password" value="user1" required/>
       <button type="submit">Login</button>
     </form>
     <div>
