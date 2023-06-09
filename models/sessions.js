@@ -88,6 +88,30 @@ module.exports = (sequelize, DataTypes) => {
       await session.destroy();
     }
 
+    async updateSession(date, time, venue, playerCount, players) {
+      this.update({
+        date: date,
+        time: time,
+        venue: venue,
+        playerCount: playerCount,
+      });
+
+      const sessionPlayers = players.map((player) => {
+        return {
+          SessionId: this.id,
+          PlayerId: player,
+        };
+      });
+
+      await sequelize.models.SessionPlayers.destroy({
+        where: {
+          SessionId: this.id,
+        },
+      });
+
+      await sequelize.models.SessionPlayers.bulkCreate(sessionPlayers);
+    }
+
     async addPlayer(playerId) {}
 
     async removePlayer(playerId) {}

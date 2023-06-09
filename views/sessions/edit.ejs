@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+    <title>Sports Scheduler | Create new <%= sportName %> session</title>
+    <script>
+      const csrfToken = document.querySelector(
+        'meta[name="csrf-token"]'
+      ).content;
+
+      function updateSession() {
+        const date = document.querySelector('input[name="date"]').value;
+        const time = document.querySelector('input[name="time"]').value;
+        const venue = document.querySelector('input[name="venue"]').value;
+        const playerCount = document.querySelector(
+          'input[name="playerCount"]'
+        ).value;
+        const players = document.querySelector('input[name="players"]').value;
+        const playerIds = players
+          .split(",")
+          .map((player) => parseInt(player.trim()));
+        const sportId = "<%= sportId %>";
+        fetch("/sessions/<%= sessionId %>", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            date,
+            time,
+            venue,
+            playerCount,
+            playerIds,
+            sportId,
+            _csrf: csrfToken,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.error) {
+              alert(data.error);
+            } else {
+              window.location.href = "/sessions";
+            }
+          })
+          .catch((err) => console.log(err));
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Edit <%= sportName %> session <%= sessionId %></h1>
+    <div>
+      <label>When will this session be played?</label>
+      <input type="date" name="date" value="<%= sessionDate %>" required />
+      <input type="time" name="time" value="<%= sessionTime %>" required />
+      <br />
+      <label>Where will this session be played?</label>
+      <input type="text" name="venue" value="<%= sessionVenue %>" required />
+      <br />
+      <label>How many players are needed?</label>
+      <input
+        type="number"
+        name="playerCount"
+        value="<%= playerCount %>"
+        required
+      />
+      <br />
+      <label>Who all will be joining you in this session?</label>
+      <input type="text" name="players" placeholder="Players" required />
+      <br />
+      <button onclick="updateSession()">Update Session</button>
+    </div>
+  </body>
+</html>

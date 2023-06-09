@@ -23,7 +23,6 @@
           .split(",")
           .map((player) => parseInt(player.trim()));
         const sportId = "<%= sportId %>";
-        const createdBy = "<%= userId %>";
         fetch("/sessions", {
           method: "POST",
           headers: {
@@ -36,7 +35,6 @@
             playerCount,
             playerIds,
             sportId,
-            createdBy,
             _csrf: csrfToken,
           }),
         })
@@ -45,7 +43,7 @@
             if (data.error) {
               alert(data.error);
             } else {
-              window.location.href = "/sessions";
+              window.location.href = "/sports/<%= sportId %>";
             }
           })
           .catch((err) => console.log(err));

@@ -5,14 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="<%= csrfToken %>" />
-    <title>Sports Scheduler | Delete Sport</title>
+    <title>Sports Scheduler | Delete Session <%= sessionId %></title>
     <script>
       const csrfToken = document.querySelector(
         'meta[name="csrf-token"]'
       ).content;
-      function deleteSport() {
-        const sportId = window.location.pathname.split("/")[2];
-        fetch(`/sports/${sportId}`, {
+
+      function deleteSession() {
+        const sessionId = window.location.pathname.split("/")[2];
+        fetch(`/sessions/${sessionId}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -21,6 +22,7 @@
         })
           .then((response) => response.json())
           .then((data) => {
+            console.log("Success:", data);
             window.location.href = `/sports`;
           })
           .catch((error) => {
@@ -30,9 +32,10 @@
     </script>
   </head>
   <body>
-    <h1>Are you sure, you want to delete <%= name %></h1>
-
-    <button value="Yes, I confirm" onclick="deleteSport()">Submit</button>
-    <a href="/sports/<%= id %>">Cancel</a>
+    <h1>
+      Are you sure you want to delete <%= sportName %> Session <%= sessionId %>?
+    </h1>
+    <button onclick="deleteSession()">Yes, I confirm</button>
+    <a href="/sessions/<%= sessionId %>">Cancel</a>
   </body>
 </html>

@@ -277,25 +277,69 @@ app.get(
   }
 );
 
-app.get("/sessions/:id", async (req, res) => {
-  try {
-    const session = await Sessions.getSessionById(req.params.id);
+app.get(
+  "/sessions/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    try {
+      const session = await Sessions.getSessionById(req.params.id);
 
-    res.render("sessions/index", {
-      sportName: session.sport.name,
-      sessionId: session.id,
-      sessionDate: session.date,
-      sessionTime: session.time,
-      sessionVenue: session.venue,
-      players: session.players,
-      playerCount: session.playerCount,
-      createdBy: session.createdBy,
-      // csrfToken: req.csrfToken(),
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+      res.render("sessions/index", {
+        sportName: session.sport.name,
+        sessionId: session.id,
+        sessionDate: session.date,
+        sessionTime: session.time,
+        sessionVenue: session.venue,
+        players: session.players,
+        playerCount: session.playerCount,
+        createdBy: session.createdBy,
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
-});
+);
+
+app.get(
+  "/sessions/:id/edit",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    try {
+      const session = await Sessions.getSessionById(req.params.id);
+      res.render("sessions/edit", {
+        sportName: session.sport.name,
+        sportId: session.sport.id,
+        sessionId: session.id,
+        sessionDate: session.date,
+        sessionTime: session.time,
+        sessionVenue: session.venue,
+        players: session.players,
+        playerCount: session.playerCount,
+        createdBy: session.createdBy,
+        csrfToken: req.csrfToken(),
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
+app.get(
+  "/sessions/:id/delete",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    try {
+      const session = await Sessions.getSessionById(req.params.id);
+      res.render("sessions/delete", {
+        sportName: session.sport.name,
+        sessionId: session.id,
+        csrfToken: req.csrfToken(),
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
 
 app.post("/sessions", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   try {
@@ -304,7 +348,7 @@ app.post("/sessions", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
       req.body.time,
       req.body.venue,
       req.body.playerCount,
-      req.body.createdBy, // TODO: get the id from userSession
+      req.user.id,
       req.body.sportId,
       req.body.playerIds
     );
@@ -320,6 +364,38 @@ app.post("/sessions", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.put(
+  "/sessions/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    try {
+      // check if the user is the creator of the session
+      const session = await Sessions.findByPk(req.params.id);
+      if (session.createdBy !== req.user.id) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const updatedSession = await session.updateSession(
+        req.body.date,
+        req.body.time,
+        req.body.venue,
+        req.body.playerCount,
+        req.body.playerIds
+      );
+
+      console.log(updatedSession);
+
+      if (req.headers.accept.includes("text/html")) {
+        res.redirect(`/sessions/${req.params.id}`);
+      } else {
+        res.json(updatedSession);
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
 
 app.delete(
   "/sessions/:id",
