@@ -114,9 +114,25 @@ module.exports = (sequelize, DataTypes) => {
       return this;
     }
 
-    async addPlayer(playerId) {}
+    async addPlayer(playerId) {
+      await sequelize.models.SessionPlayers.create({
+        SessionId: this.id,
+        PlayerId: playerId,
+      });
 
-    async removePlayer(playerId) {}
+      return this;
+    }
+
+    async removePlayer(playerId) {
+      await sequelize.models.SessionPlayers.destroy({
+        where: {
+          SessionId: this.id,
+          PlayerId: playerId,
+        },
+      });
+
+      return this;
+    }
   }
   Sessions.init(
     {

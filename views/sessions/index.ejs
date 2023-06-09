@@ -5,9 +5,11 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta name="csrf-token" content="<%= csrfToken %>" />
+  <meta name="csrf-token" content="<%= csrfToken %>" />
 
-  <title><%= sportName %> Session <%= sessionId %> | Sportzzz</title>
+  <title>
+    <%= sportName %> Session <%= sessionId %> | Sportzzz
+  </title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
   <style>
     .max-width-500 {
@@ -20,7 +22,9 @@
   <%- include("../partials/navbar.ejs", {username: username}) %>
 
   <div class="container py-4 max-width-500">
-    <h1><%= sportName %> Session <%= sessionId %></h1>
+    <h1>
+      <%= sportName %> Session <%= sessionId %>
+    </h1>
     <p>
       The session is scheduled for <%= new Date(sessionDate).toLocaleDateString() %>,
       <%= sessionTime %>,
@@ -29,17 +33,33 @@
 
     <h2>Players</h2>
     <ul class="list-group">
-      <% for (let i = 0; i < players.length; i++) { %>
-      <li class="list-group-item"><%= players[i].name %></li>
+      <% for (let i=0; i < players.length; i++) { %>
+      <li class="list-group-item">
+        <%= players[i].name %>
+      </li>
       <% } %>
     </ul>
 
+    <% if (isCreator) { %>
     <div class="mt-4">
       <a href="/sessions/<%= sessionId %>/edit" class="btn btn-primary">Edit Session</a>
       <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
         Delete Session
       </button>
     </div>
+    <% } else if (alreadyJoined) { %>
+    <div class="mt-4">
+      <button type="button" class="btn btn-danger" onclick="leaveSession()">
+        Leave Session
+      </button>
+    </div>
+    <% } else { %>
+    <div class="mt-4">
+      <button type="button" class="btn btn-primary" onclick="joinSession()">
+        Join Session
+      </button>
+    </div>
+    <% } %>
   </div>
 
   <!-- Delete Modal -->
@@ -64,29 +84,71 @@
   <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js" integrity="sha256-tG5mcZUtJsZvyKAxYLVXrmjKBVLd6VpVccqz/r4ypFE=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
   <script>
-      const csrfToken = document.querySelector(
-        'meta[name="csrf-token"]'
-      ).content;
+    const csrfToken = document.querySelector(
+      'meta[name="csrf-token"]'
+    ).content;
 
-      function deleteSession() {
-        const sessionId = window.location.pathname.split("/")[2];
-        fetch(`/sessions/${sessionId}`, {
+    function deleteSession() {
+      const sessionId = window.location.pathname.split("/")[2];
+      fetch(`/sessions/${sessionId}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ _csrf: csrfToken }),
+          body: JSON.stringify({
+            _csrf: csrfToken
+          }),
         })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log("Success:", data);
-            window.location.href = `/home`;
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-          });
-      }
-    </script>
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Success:", data);
+          window.location.href = `/home`;
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+
+    function joinSession() {
+      const sessionId = window.location.pathname.split("/")[2];
+      fetch(`/sessions/${sessionId}/join`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            _csrf: csrfToken
+          }),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+          window.location.href = `/sessions/${sessionId}`;
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+
+    function leaveSession() {
+      const sessionId = window.location.pathname.split("/")[2];
+      fetch(`/sessions/${sessionId}/leave`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            _csrf: csrfToken
+          }),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+          window.location.href = `/sessions/${sessionId}`;
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+  </script>
 </body>
 
 </html>

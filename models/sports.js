@@ -1,5 +1,5 @@
 "use strict";
-const { Model } = require("sequelize");
+const { Model, Op } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Sports extends Model {
     /**
@@ -32,6 +32,28 @@ module.exports = (sequelize, DataTypes) => {
     static async deleteSport(sportId) {
       const sport = await Sports.findByPk(sportId);
       await sport.destroy();
+    }
+
+    async getUpcomingSessions() {
+      const sessions = await this.getSessions({
+        where: {
+          date: {
+            [Op.gte]: new Date(),
+          },
+        },
+      });
+      return sessions;
+    }
+
+    async getPastSessions() {
+      const sessions = await this.getSessions({
+        where: {
+          date: {
+            [Op.lt]: new Date(),
+          },
+        },
+      });
+      return sessions;
     }
   }
   Sports.init(

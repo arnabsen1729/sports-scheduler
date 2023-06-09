@@ -124,10 +124,8 @@ app.get(
   async (req, res) => {
     try {
       const sport = await Sports.findByPk(req.params.id);
-      const upcommingSessions = await req.user.getUpcomingSessionsBySport(
-        sport.id
-      );
-      const pastSessions = await req.user.getPastSessionsBySport(sport.id);
+      const upcommingSessions = await sport.getUpcomingSessions();
+      const pastSessions = await sport.getPastSessions();
 
       const isAdmin = req.user.role === "admin";
 
@@ -311,6 +309,10 @@ app.get(
   async (req, res) => {
     try {
       const session = await Sessions.getSessionById(req.params.id);
+      const isCreator = session.createdBy === req.user.id;
+      const alreadyJoined = session.players.some(
+        (player) => player.id === req.user.id
+      );
 
       res.render("sessions/index", {
         sportName: session.sport.name,
@@ -322,6 +324,8 @@ app.get(
         playerCount: session.playerCount,
         createdBy: session.createdBy,
         username: req.user.name,
+        isCreator,
+        alreadyJoined,
         csrfToken: req.csrfToken(),
       });
     } catch (error) {
@@ -364,6 +368,36 @@ app.get(
         username: req.user.name,
         csrfToken: req.csrfToken(),
       });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
+app.put(
+  "/sessions/:id/join",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    try {
+      const session = await Sessions.getSessionById(req.params.id);
+      await session.addPlayer(req.user.id);
+
+      res.json({ joined: true });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
+app.put(
+  "/sessions/:id/leave",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    try {
+      const session = await Sessions.getSessionById(req.params.id);
+      await session.removePlayer(req.user.id);
+
+      res.json({ joined: false });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
