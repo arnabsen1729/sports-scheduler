@@ -308,6 +308,8 @@ app.get(
         players: session.players,
         playerCount: session.playerCount,
         createdBy: session.createdBy,
+        username: req.user.name,
+        csrfToken: req.csrfToken(),
       });
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -334,12 +336,6 @@ app.get(
             (selectedPlayer) => selectedPlayer.id === player.id
           )
       );
-
-      console.log("===== SElECTED =====");
-      console.log(selectedPlayers.map((player) => player.toJSON()));
-
-      console.log("===== UNSElECTED =====");
-      console.log(unselectedPlayers.map((player) => player.toJSON()));
 
       res.render("sessions/edit", {
         sportName: session.sport.name,
@@ -401,7 +397,6 @@ app.put(
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
     try {
-      // check if the user is the creator of the session
       const session = await Sessions.findByPk(req.params.id);
       if (session.createdBy !== req.user.id) {
         return res.status(401).json({ error: "Unauthorized" });
