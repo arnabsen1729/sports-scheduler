@@ -23,6 +23,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("somesecretkey"));
 app.use(csrf("NAA41FhDUQ6TgdADAO9fzPjKCqP9UwrY", ["POST", "PUT", "DELETE"]));
 app.set("views", path.join(__dirname, "views"));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.set("view engine", "ejs");
 
