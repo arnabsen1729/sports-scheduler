@@ -48,6 +48,17 @@
       <% } %>
     </ul>
 
+    <% if (isAdmin) { %>
+    <div class="d-flex justify-content-center mt-5 gap-2">
+      <a href="/sports/new" type="button" class="btn btn-primary">
+        Create a new sport
+      </a>
+      <a href="/reports" type="button" class="btn btn-info">
+        View reports
+      </a>
+    </div>
+    <% } %>
+
     <div class="mt-5">
       <p class="lead">Here are your upcomming sessions:</p>
       <% if (upcommingSessions.length> 0) { %>

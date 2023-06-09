@@ -86,7 +86,7 @@ function requireAdmin(req, res, next) {
   if (req.user && req.user.role === "admin") {
     return next();
   } else {
-    res.status(401).json({ error: "Unauthorized" });
+    res.redirect("/home");
   }
 }
 
@@ -104,10 +104,12 @@ app.get("/home", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   try {
     const sports = await Sports.getSports();
     const upcommingSessions = await req.user.getUpcomingSessions();
+    const isAdmin = req.user.role === "admin";
     res.render("home.ejs", {
       sports: sports,
       username: req.user.name,
       upcommingSessions: upcommingSessions,
+      isAdmin: isAdmin,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -115,7 +117,10 @@ app.get("/home", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
 });
 
 app.get("/sports/new", requireAdmin, (req, res) => {
-  res.render("sports/new", { csrfToken: req.csrfToken() });
+  res.render("sports/new", {
+    username: req.user.name,
+    csrfToken: req.csrfToken(),
+  });
 });
 
 app.get(
@@ -138,6 +143,7 @@ app.get(
           pastSessions,
           isAdmin,
           username: req.user.name,
+          csrfToken: req.csrfToken(),
         },
         (err, html) => {
           if (err) {
@@ -157,25 +163,12 @@ app.get("/sports/:id/edit", requireAdmin, async (req, res) => {
     const sport = await Sports.findByPk(req.params.id);
     ejs.renderFile(
       "./views/sports/edit.ejs",
-      { id: sport.id, name: sport.name, csrfToken: req.csrfToken() },
-      (err, html) => {
-        if (err) {
-          console.log(err);
-        }
-        res.send(html);
-      }
-    );
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.get("/sports/:id/delete", requireAdmin, async (req, res) => {
-  try {
-    const sport = await Sports.findByPk(req.params.id);
-    ejs.renderFile(
-      "./views/sports/delete.ejs",
-      { id: sport.id, name: sport.name, csrfToken: req.csrfToken() },
+      {
+        id: sport.id,
+        name: sport.name,
+        username: req.user.name,
+        csrfToken: req.csrfToken(),
+      },
       (err, html) => {
         if (err) {
           console.log(err);
@@ -398,23 +391,6 @@ app.put(
       await session.removePlayer(req.user.id);
 
       res.json({ joined: false });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  }
-);
-
-app.get(
-  "/sessions/:id/delete",
-  connectEnsureLogin.ensureLoggedIn(),
-  async (req, res) => {
-    try {
-      const session = await Sessions.getSessionById(req.params.id);
-      res.render("sessions/delete", {
-        sportName: session.sport.name,
-        sessionId: session.id,
-        csrfToken: req.csrfToken(),
-      });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
