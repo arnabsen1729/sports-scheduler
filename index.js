@@ -373,6 +373,14 @@ app.put(
   async (req, res) => {
     try {
       const session = await Sessions.getSessionById(req.params.id);
+      if (session.players.some((player) => player.id === req.user.id)) {
+        return res.json({ joined: true });
+      }
+
+      if (session.playerCount === session.players.length) {
+        return res.json({ joined: false });
+      }
+
       await session.addPlayer(req.user.id);
 
       res.json({ joined: true });
@@ -399,6 +407,12 @@ app.put(
 
 app.post("/sessions", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   try {
+    if (req.body.playerIds.length > req.body.playerCount) {
+      return res.status(422).json({
+        error: "Number of players selected exceeds the maximum allowed",
+      });
+    }
+
     const newSession = await Sessions.addSession(
       req.body.date,
       req.body.time,

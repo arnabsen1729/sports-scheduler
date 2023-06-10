@@ -67,6 +67,12 @@
       ).value;
       const playerIds = $('#player-multi-select').val();
       playerIds.push(parseInt("<%= userId %>"));
+
+      if (playerIds.length > playerCount) {
+        alert("You have selected more players than required");
+        return;
+      }
+
       const sportId = "<%= sportId %>";
       fetch("/sessions", {
           method: "POST",

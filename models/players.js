@@ -48,6 +48,16 @@ module.exports = (sequelize, DataTypes) => {
             [Op.gte]: new Date(),
           },
         },
+        include: [
+          {
+            model: sequelize.models.Sports,
+            as: "sport",
+          },
+          {
+            model: sequelize.models.Players,
+            as: "players",
+          },
+        ],
       });
       return sessions;
     }
