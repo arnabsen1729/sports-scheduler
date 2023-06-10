@@ -75,6 +75,11 @@ module.exports = (sequelize, DataTypes) => {
       });
       return sessions;
     }
+
+    static async getTotalSports() {
+      const totalSports = await Sports.count();
+      return totalSports;
+    }
   }
   Sports.init(
     {

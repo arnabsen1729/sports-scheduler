@@ -62,46 +62,10 @@ module.exports = (sequelize, DataTypes) => {
       return sessions;
     }
 
-    // async getUpcomingSessionsBySport(sportId) {
-    //   const sessions = await this.getSessions({
-    //     where: {
-    //       date: {
-    //         [Op.gte]: new Date(),
-    //       },
-    //     },
-    //     include: [
-    //       {
-    //         model: sequelize.models.Sports,
-    //         as: "sport",
-    //         where: {
-    //           id: sportId,
-    //         },
-    //       },
-    //     ],
-    //   });
-    //   return sessions;
-    // }
-
-    // async getPastSessionsBySport(sportId) {
-    //   const sessions = await this.getSessions({
-    //     where: {
-    //       date: {
-    //         [Op.lt]: new Date(),
-    //       },
-    //     },
-    //     include: [
-    //       {
-    //         model: sequelize.models.Sports,
-    //         as: "sport",
-    //         where: {
-    //           id: sportId,
-    //         },
-    //       },
-    //     ],
-    //   });
-
-    //   return sessions;
-    // }
+    static async getTotalPlayers() {
+      const totalPlayers = await Players.count();
+      return totalPlayers;
+    }
   }
   Players.init(
     {

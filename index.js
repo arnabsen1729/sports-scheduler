@@ -474,6 +474,33 @@ app.delete(
   }
 );
 
+app.get("/reports", requireAdmin, async (req, res) => {
+  try {
+    const sessionsCountBySport = await Sessions.getSessionCountsBySport();
+    const playersCountBySport = await Sessions.getPlayerCountsBySport();
+    const mostPopularSport = await Sessions.getMostPopularSport();
+    const mostPlayersInSession = await Sessions.getMostPlayersInSession();
+    const activePlayer = await Sessions.getUserWithMostCreatedSessions();
+    const totalSessions = await Sessions.getTotalSessions();
+    const totalPlayers = await Players.getTotalPlayers();
+    const totalSports = await Sports.getTotalSports();
+
+    res.render("reports", {
+      username: req.user.name,
+      sessionsCountBySport,
+      playersCountBySport,
+      mostPopularSport,
+      mostPlayersInSession,
+      activePlayer,
+      totalSessions,
+      totalPlayers,
+      totalSports,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(3000, () => {
   console.log("Server is listening on port 3000");
 });
